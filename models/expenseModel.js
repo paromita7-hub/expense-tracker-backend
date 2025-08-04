@@ -4,6 +4,7 @@ const expenseSchema = new mongoose.Schema({
   description: {
     type: String,
     required: true,
+    trim: true,
   },
   amount: {
     type: Number,
@@ -11,11 +12,12 @@ const expenseSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    default: 'General',
+    required: true,
+    enum: ['Food', 'Travel', 'Shopping', 'Health', 'Other'],
   },
   date: {
     type: Date,
-    default: Date.now,
+    required: true,
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,
