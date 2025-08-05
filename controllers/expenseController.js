@@ -10,10 +10,14 @@ exports.getExpenses = async (req, res) => {
   }
 };
 
-// @desc    Create a new expense
+// @desc    Create new expense
 exports.createExpense = async (req, res) => {
   try {
     const { description, amount, category, date } = req.body;
+
+    if (!description || !amount || !category || !date) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
 
     const newExpense = new Expense({
       description,
@@ -26,7 +30,8 @@ exports.createExpense = async (req, res) => {
     const savedExpense = await newExpense.save();
     res.status(201).json(savedExpense);
   } catch (error) {
-    res.status(400).json({ error: 'Invalid data' });
+    console.error('Create Expense Error:', error.message);
+    res.status(400).json({ error: error.message });
   }
 };
 
@@ -56,12 +61,33 @@ exports.deleteExpense = async (req, res) => {
   try {
     const expense = await Expense.findById(req.params.id);
 
-    if (!expense) return res.status(404).json({ error: 'Expense not found' });
-    if (expense.user.toString() !== req.user.id) return res.status(401).json({ error: 'Unauthorized' });
+    if (!expense) {
+      return res.status(404).json({ error: 'Expense not found' });
+    }
 
-    await expense.remove();
-    res.json({ message: 'Expense deleted' });
+    if (expense.user.toString() !== req.user.id) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    await Expense.findByIdAndDelete(req.params.id); // ✅ More reliable
+    res.json({ message: 'Expense deleted successfully' });
   } catch (error) {
+    console.error('Delete Expense Error:', error.message);
+    res.status(500).json({ error: 'Server Error' });
+  }
+};
+// @desc    Get total expenses for logged-in user
+exports.getTotalExpense = async (req, res) => {
+  try {
+    const result = await Expense.aggregate([
+      { $match: { user: req.user._id } },
+      { $group: { _id: null, totalAmount: { $sum: "$amount" } } }
+    ]);
+
+    const total = result[0]?.totalAmount || 0;
+    res.json({ totalExpense: total });
+  } catch (error) {
+    console.error('Total Expense Error:', error.message);
     res.status(500).json({ error: 'Server Error' });
   }
 };

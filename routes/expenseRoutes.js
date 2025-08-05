@@ -5,6 +5,7 @@ const {
   createExpense,
   updateExpense,
   deleteExpense,
+  getTotalExpense, // ✅ ADD THIS
 } = require('../controllers/expenseController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -15,5 +16,6 @@ router.route('/')
 router.route('/:id')
   .put(protect, updateExpense)
   .delete(protect, deleteExpense);
-
+// ✅ ADD THIS ROUTE
+router.get('/total/expense', protect, getTotalExpense);
 module.exports = router;
