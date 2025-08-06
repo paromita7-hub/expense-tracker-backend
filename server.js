@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 5000;
 
 // ✅ CORS Configuration
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://genuine-piroshki-92cb57.netlify.app'], // replace with your actual frontend Netlify URL
+  origin: ['http://localhost:3000', 'https://expenditure-trackify.netlify.app'], // replace with your actual frontend Netlify URL
   credentials: true,
 }));
 
